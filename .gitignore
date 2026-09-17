@@ -1,0 +1,21 @@
+# Variables d'environnement
+.env*
+!.env.example
+
+# Dépendances JavaScript
+node_modules/
+
+# Next.js
+.next/
+out/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Éditeurs et système
+.vscode/
+.DS_Store
+Thumbs.db
