@@ -27,7 +27,7 @@ export default function Navigation() {
 
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-surface/90 backdrop-blur">
-      <div className="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-3 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-8">
+      <div className="mx-auto flex w-full min-w-0 max-w-7xl flex-col gap-3 px-4 py-3 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-8">
         <Link href="/" className="flex items-center gap-3">
           <span className="flex size-11 items-center justify-center rounded-xl bg-accent text-sm font-bold text-foreground">
             LBR

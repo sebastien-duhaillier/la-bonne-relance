@@ -1,5 +1,5 @@
 "use client";
-
+import Link from "next/link";
 import { useState } from "react";
 
 type AutomationStep = {
@@ -134,12 +134,12 @@ export default function AutomationsPage() {
           </p>
         </div>
 
-        <button
-          type="button"
-          className="rounded-xl bg-primary px-5 py-3 font-semibold text-white shadow-sm hover:bg-primary-hover"
-        >
-          Nouvelle automatisation
-        </button>
+       <Link
+  href="/automatisations/nouvelle"
+  className="inline-flex items-center justify-center rounded-xl bg-primary px-5 py-3 font-semibold text-white shadow-sm hover:bg-primary-hover"
+>
+  Nouvelle automatisation
+</Link>
       </header>
 
       <div className="grid gap-4 sm:grid-cols-3">
