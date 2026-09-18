@@ -1,8 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import type { FormEvent } from "react";
-import { useState } from "react";
+import { useActionState, useState } from "react";
+
+import {
+  createAutomation,
+  type AutomationFormState,
+} from "@/app/(application)/automatisations/actions";
 
 type AutomationStep = {
   id: number;
@@ -28,9 +32,18 @@ const initialSteps: AutomationStep[] = [
   },
 ];
 
+const initialFormState: AutomationFormState = {
+  error: null,
+};
+
 export default function NewAutomationPage() {
   const [steps, setSteps] =
     useState<AutomationStep[]>(initialSteps);
+
+  const [formState, formAction, pending] = useActionState(
+    createAutomation,
+    initialFormState,
+  );
 
   function addStep() {
     setSteps((currentSteps) => [
@@ -68,10 +81,6 @@ export default function NewAutomationPage() {
     );
   }
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-  }
-
   return (
     <section className="mx-auto max-w-5xl space-y-6">
       <Link
@@ -96,7 +105,19 @@ export default function NewAutomationPage() {
         </p>
       </header>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form action={formAction} className="space-y-6">
+        <input
+          type="hidden"
+          name="steps"
+          value={JSON.stringify(steps)}
+        />
+
+        {formState.error && (
+          <p className="rounded-xl border border-danger/30 bg-danger/10 px-4 py-3 text-sm font-medium text-danger">
+            {formState.error}
+          </p>
+        )}
+
         <section className="rounded-2xl border border-border bg-surface p-6 shadow-sm">
           <header className="mb-6">
             <h2 className="text-lg font-bold text-foreground">
@@ -398,9 +419,12 @@ export default function NewAutomationPage() {
 
           <button
             type="submit"
-            className="rounded-xl bg-primary px-5 py-3 font-semibold text-white shadow-sm hover:bg-primary-hover"
+            disabled={pending}
+            className="rounded-xl bg-primary px-5 py-3 font-semibold text-white shadow-sm hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-50"
           >
-            Créer l’automatisation
+            {pending
+              ? "Création en cours…"
+              : "Créer l’automatisation"}
           </button>
         </div>
       </form>
