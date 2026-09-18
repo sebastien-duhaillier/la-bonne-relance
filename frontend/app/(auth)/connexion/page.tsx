@@ -1,3 +1,5 @@
+
+import Link from "next/link";
 export default function ConnexionPage() {
   return (
     <main className="flex min-h-screen items-center justify-center px-4 py-12">
@@ -63,15 +65,21 @@ export default function ConnexionPage() {
           </button>
         </form>
 
-        <div className="mt-6 flex justify-between text-sm font-medium text-primary">
-          <span className="cursor-pointer hover:text-primary-hover">
-            Mot de passe oublié
-          </span>
+       <div className="mt-6 flex justify-between gap-4 text-sm font-medium text-primary">
+  <Link
+    href="/mot-de-passe-oublie"
+    className="hover:text-primary-hover"
+  >
+    Mot de passe oublié
+  </Link>
 
-          <span className="cursor-pointer hover:text-primary-hover">
-            Créer un compte
-          </span>
-        </div>
+  <Link
+    href="/inscription"
+    className="hover:text-primary-hover"
+  >
+    Créer un compte
+  </Link>
+</div>
       </section>
     </main>
   );
