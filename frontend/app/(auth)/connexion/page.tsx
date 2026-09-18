@@ -1,11 +1,23 @@
-
 import Link from "next/link";
-export default function ConnexionPage() {
+import { signIn } from "@/app/(auth)/actions";
+
+type ConnexionPageProps = {
+  searchParams: Promise<{
+    error?: string;
+    message?: string;
+  }>;
+};
+
+export default async function ConnexionPage({
+  searchParams,
+}: ConnexionPageProps) {
+  const { error, message } = await searchParams;
+
   return (
     <main className="flex min-h-screen items-center justify-center px-4 py-12">
       <section className="w-full max-w-md rounded-2xl border border-border bg-surface p-8 shadow-xl shadow-primary/10">
         <header className="mb-8 text-center">
-          <div className="mx-auto mb-4 flex size-14 items-center justify-center rounded-2xl bg-accent text-2xl font-bold text-foreground">
+          <div className="mx-auto mb-4 flex size-14 items-center justify-center rounded-2xl bg-accent text-lg font-bold tracking-tight text-foreground">
             LBR
           </div>
 
@@ -18,7 +30,22 @@ export default function ConnexionPage() {
           </p>
         </header>
 
-        <form className="space-y-5">
+        {error && (
+          <div
+            role="alert"
+            className="mb-5 rounded-xl border border-danger/30 bg-danger/10 p-4 text-sm font-medium text-danger"
+          >
+            {error}
+          </div>
+        )}
+
+        {message && (
+          <div className="mb-5 rounded-xl border border-success/30 bg-success/10 p-4 text-sm font-medium text-success">
+            {message}
+          </div>
+        )}
+
+        <form action={signIn} className="space-y-5">
           <div>
             <label
               htmlFor="email"
@@ -59,27 +86,27 @@ export default function ConnexionPage() {
 
           <button
             type="submit"
-            className="w-full cursor-pointer rounded-xl bg-primary px-4 py-3 font-semibold text-white shadow-sm hover:bg-primary-hover"
+            className="w-full rounded-xl bg-primary px-4 py-3 font-semibold text-white shadow-sm hover:bg-primary-hover"
           >
             Se connecter
           </button>
         </form>
 
-       <div className="mt-6 flex justify-between gap-4 text-sm font-medium text-primary">
-  <Link
-    href="/mot-de-passe-oublie"
-    className="hover:text-primary-hover"
-  >
-    Mot de passe oublié
-  </Link>
+        <div className="mt-6 flex justify-between gap-4 text-sm font-medium text-primary">
+          <Link
+            href="/mot-de-passe-oublie"
+            className="hover:text-primary-hover"
+          >
+            Mot de passe oublié
+          </Link>
 
-  <Link
-    href="/inscription"
-    className="hover:text-primary-hover"
-  >
-    Créer un compte
-  </Link>
-</div>
+          <Link
+            href="/inscription"
+            className="hover:text-primary-hover"
+          >
+            Créer un compte
+          </Link>
+        </div>
       </section>
     </main>
   );

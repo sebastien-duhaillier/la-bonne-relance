@@ -1,12 +1,16 @@
-"use client";
-
 import Link from "next/link";
-import type { FormEvent } from "react";
+import { signUp } from "@/app/(auth)/actions";
 
-export default function RegistrationPage() {
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-  }
+type RegistrationPageProps = {
+  searchParams: Promise<{
+    error?: string;
+  }>;
+};
+
+export default async function RegistrationPage({
+  searchParams,
+}: RegistrationPageProps) {
+  const { error } = await searchParams;
 
   return (
     <main className="flex min-h-screen items-center justify-center px-4 py-12">
@@ -25,7 +29,16 @@ export default function RegistrationPage() {
           </p>
         </header>
 
-        <form onSubmit={handleSubmit} className="space-y-5">
+        {error && (
+          <div
+            role="alert"
+            className="mb-5 rounded-xl border border-danger/30 bg-danger/10 p-4 text-sm font-medium text-danger"
+          >
+            {error}
+          </div>
+        )}
+
+        <form action={signUp} className="space-y-5">
           <div>
             <label
               htmlFor="name"

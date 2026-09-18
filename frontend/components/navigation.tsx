@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { signOut } from "@/app/(auth)/actions";
 
 const navigationItems = [
   {
@@ -63,6 +64,14 @@ export default function Navigation() {
             );
           })}
         </nav>
+        <form action={signOut}>
+  <button
+    type="submit"
+    className="rounded-lg border border-[var(--border)] px-4 py-2 text-sm font-medium text-[var(--foreground)] transition hover:bg-[var(--surface-muted)]"
+  >
+    Se déconnecter
+  </button>
+</form>
       </div>
     </header>
   );
