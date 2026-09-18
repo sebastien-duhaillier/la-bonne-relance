@@ -167,3 +167,74 @@ export async function deleteProspect(id: string) {
   revalidatePath("/prospects");
   redirect("/prospects");
 }
+export async function enrollProspect(
+  prospectId: string,
+  formData: FormData,
+) {
+  const automationId = readText(formData, "automationId");
+
+  if (!automationId) {
+    const message = "Sélectionnez une automatisation.";
+
+    redirect(
+      `/prospects/${prospectId}?error=${encodeURIComponent(message)}`,
+    );
+  }
+
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/connexion");
+  }
+
+  const { data: automation, error: automationError } =
+    await supabase
+      .from("automations")
+      .select("id")
+      .eq("id", automationId)
+      .eq("is_active", true)
+      .maybeSingle();
+
+  if (automationError || !automation) {
+    const message =
+      "Cette automatisation est introuvable ou inactive.";
+
+    redirect(
+      `/prospects/${prospectId}?error=${encodeURIComponent(message)}`,
+    );
+  }
+
+  const { error } = await supabase
+    .from("automation_enrollments")
+    .insert({
+      user_id: user.id,
+      automation_id: automationId,
+      prospect_id: prospectId,
+      status: "pending",
+    });
+
+  if (error) {
+    const message =
+      error.code === "23505"
+        ? "Ce prospect est déjà inscrit à cette automatisation."
+        : error.message;
+
+    redirect(
+      `/prospects/${prospectId}?error=${encodeURIComponent(message)}`,
+    );
+  }
+
+  revalidatePath("/automatisations");
+  revalidatePath(`/prospects/${prospectId}`);
+
+  const message =
+    "Le prospect a été ajouté à l’automatisation.";
+
+  redirect(
+    `/prospects/${prospectId}?success=${encodeURIComponent(message)}`,
+  );
+}

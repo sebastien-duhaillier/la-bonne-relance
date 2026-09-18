@@ -1,14 +1,18 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-
 import { deleteProspect } from "@/app/(application)/prospects/actions";
 import DeleteProspectButton from "@/components/delete-prospect-button";
 import type { ProspectStatus } from "@/types/prospect";
 import { createClient } from "@/lib/supabase/server";
+import EnrollProspectForm from "@/components/enroll-prospect-form";
 
 type ProspectPageProps = {
   params: Promise<{
     id: string;
+  }>;
+  searchParams: Promise<{
+    error?: string;
+    success?: string;
   }>;
 };
 
@@ -49,11 +53,14 @@ function formatDate(date: string | null) {
     dateStyle: "long",
   }).format(new Date(date));
 }
-
 export default async function ProspectPage({
   params,
+  searchParams,
 }: ProspectPageProps) {
-  const { id } = await params;
+  const [{ id }, messages] = await Promise.all([
+    params,
+    searchParams,
+  ]);
   const supabase = await createClient();
 
   const { data: prospect, error } = await supabase
@@ -123,6 +130,17 @@ export default async function ProspectPage({
         className="inline-flex text-sm font-semibold text-primary hover:text-primary-hover"
       >
         ← Retour aux prospects
+        {messages.error && (
+  <p className="rounded-xl border border-danger/30 bg-danger/10 px-4 py-3 text-sm font-medium text-danger">
+    {messages.error}
+  </p>
+)}
+
+{messages.success && (
+  <p className="rounded-xl border border-success/30 bg-success/10 px-4 py-3 text-sm font-medium text-success">
+    {messages.success}
+  </p>
+)}
       </Link>
 
       <article className="flex flex-col gap-5 rounded-2xl border border-border bg-surface p-6 shadow-sm sm:flex-row sm:items-center sm:justify-between">
@@ -271,6 +289,7 @@ export default async function ProspectPage({
               Modifier le suivi
             </Link>
           </article>
+          <EnrollProspectForm prospectId={prospect.id} />
         </div>
 
         <div className="space-y-6">
