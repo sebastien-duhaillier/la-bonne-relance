@@ -1,9 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import {
-  prospects,
-  type ProspectStatus,
-} from "@/data/prospects";
+
+import type { ProspectStatus } from "@/data/prospects";
+import { createClient } from "@/lib/supabase/server";
 
 type ProspectPageProps = {
   params: Promise<{
@@ -20,36 +19,95 @@ const statusStyles: Record<ProspectStatus, string> = {
   Perdu: "bg-danger/10 text-danger",
 };
 
+const allowedStatuses: ProspectStatus[] = [
+  "Nouveau",
+  "Contacté",
+  "Qualifié",
+  "Proposition",
+  "Gagné",
+  "Perdu",
+];
+
+function getInitials(name: string) {
+  return name
+    .trim()
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((part) => part.charAt(0))
+    .join("")
+    .toUpperCase();
+}
+
+function formatDate(date: string | null) {
+  if (!date) {
+    return "Aucune";
+  }
+
+  return new Intl.DateTimeFormat("fr-FR", {
+    dateStyle: "long",
+  }).format(new Date(date));
+}
+
 export default async function ProspectPage({
   params,
 }: ProspectPageProps) {
   const { id } = await params;
+  const supabase = await createClient();
 
-  const prospect = prospects.find(
-    (currentProspect) => currentProspect.id === Number(id),
-  );
+  const { data: prospect, error } = await supabase
+    .from("prospects")
+    .select(
+      `
+        id,
+        name,
+        company,
+        email,
+        phone,
+        source,
+        status,
+        notes,
+        last_contact_at,
+        next_follow_up_at,
+        created_at,
+        updated_at
+      `,
+    )
+    .eq("id", id)
+    .maybeSingle();
+
+  if (error) {
+    throw new Error(
+      `Impossible de récupérer le prospect : ${error.message}`,
+    );
+  }
 
   if (!prospect) {
     notFound();
   }
 
+  const status: ProspectStatus = allowedStatuses.includes(
+    prospect.status as ProspectStatus,
+  )
+    ? (prospect.status as ProspectStatus)
+    : "Nouveau";
+
+  const initials = getInitials(prospect.name);
+
   const activities = [
     {
       title: "Prospect ajouté",
-      description: `${prospect.name} a été ajouté depuis ${prospect.origin.toLowerCase()}.`,
-      date: prospect.lastActivity,
-    },
-    {
-      title: "E-mail d’information envoyé",
-      description: `Un message de présentation a été envoyé à ${prospect.email}.`,
-      date: prospect.lastActivity,
-    },
-    {
-      title: "Relance programmée",
-      description: `Prochaine action prévue : ${prospect.nextFollowUp}.`,
-      date: prospect.nextFollowUp,
+      description: `${prospect.name} a été ajouté depuis ${prospect.source.toLowerCase()}.`,
+      date: formatDate(prospect.created_at),
     },
   ];
+
+  if (prospect.next_follow_up_at) {
+    activities.push({
+      title: "Relance programmée",
+      description: `Une prochaine relance est prévue pour ce prospect.`,
+      date: formatDate(prospect.next_follow_up_at),
+    });
+  }
 
   return (
     <section className="space-y-6">
@@ -63,7 +121,7 @@ export default async function ProspectPage({
       <article className="flex flex-col gap-5 rounded-2xl border border-border bg-surface p-6 shadow-sm sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-4">
           <div className="flex size-16 shrink-0 items-center justify-center rounded-2xl bg-accent-soft text-xl font-bold text-primary-hover">
-            {prospect.initials}
+            {initials}
           </div>
 
           <div>
@@ -73,14 +131,14 @@ export default async function ProspectPage({
               </h1>
 
               <span
-                className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${statusStyles[prospect.status]}`}
+                className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${statusStyles[status]}`}
               >
-                {prospect.status}
+                {status}
               </span>
             </div>
 
             <p className="mt-1 text-muted">
-              {prospect.company}
+              {prospect.company || "Entreprise non renseignée"}
             </p>
           </div>
         </div>
@@ -107,12 +165,39 @@ export default async function ProspectPage({
                 </dt>
 
                 <dd className="mt-1">
-                  <a
-                    href={`mailto:${prospect.email}`}
-                    className="font-semibold text-primary hover:text-primary-hover"
-                  >
-                    {prospect.email}
-                  </a>
+                  {prospect.email ? (
+                    <a
+                      href={`mailto:${prospect.email}`}
+                      className="font-semibold text-primary hover:text-primary-hover"
+                    >
+                      {prospect.email}
+                    </a>
+                  ) : (
+                    <span className="font-semibold text-foreground">
+                      Non renseignée
+                    </span>
+                  )}
+                </dd>
+              </div>
+
+              <div>
+                <dt className="text-sm font-medium text-muted">
+                  Téléphone
+                </dt>
+
+                <dd className="mt-1">
+                  {prospect.phone ? (
+                    <a
+                      href={`tel:${prospect.phone}`}
+                      className="font-semibold text-primary hover:text-primary-hover"
+                    >
+                      {prospect.phone}
+                    </a>
+                  ) : (
+                    <span className="font-semibold text-foreground">
+                      Non renseigné
+                    </span>
+                  )}
                 </dd>
               </div>
 
@@ -122,7 +207,7 @@ export default async function ProspectPage({
                 </dt>
 
                 <dd className="mt-1 font-semibold text-foreground">
-                  {prospect.company}
+                  {prospect.company || "Non renseignée"}
                 </dd>
               </div>
 
@@ -132,7 +217,7 @@ export default async function ProspectPage({
                 </dt>
 
                 <dd className="mt-1 font-semibold text-foreground">
-                  {prospect.origin}
+                  {prospect.source}
                 </dd>
               </div>
             </dl>
@@ -146,11 +231,11 @@ export default async function ProspectPage({
             <dl className="mt-6 grid gap-5 sm:grid-cols-2">
               <div>
                 <dt className="text-sm font-medium text-muted">
-                  Dernière activité
+                  Dernier contact
                 </dt>
 
                 <dd className="mt-1 font-semibold text-foreground">
-                  {prospect.lastActivity}
+                  {formatDate(prospect.last_contact_at)}
                 </dd>
               </div>
 
@@ -160,26 +245,17 @@ export default async function ProspectPage({
                 </dt>
 
                 <dd className="mt-1 font-semibold text-foreground">
-                  {prospect.nextFollowUp}
+                  {formatDate(prospect.next_follow_up_at)}
                 </dd>
               </div>
             </dl>
 
-            <div className="mt-6 grid gap-3">
-              <button
-                type="button"
-                className="rounded-xl bg-primary px-4 py-3 font-semibold text-white hover:bg-primary-hover"
-              >
-                Programmer une relance
-              </button>
-
-              <button
-                type="button"
-                className="rounded-xl border border-primary px-4 py-3 font-semibold text-primary hover:bg-primary hover:text-white"
-              >
-                Ajouter à une automatisation
-              </button>
-            </div>
+            <Link
+              href={`/prospects/${prospect.id}/modifier`}
+              className="mt-6 inline-flex w-full items-center justify-center rounded-xl bg-primary px-4 py-3 font-semibold text-white hover:bg-primary-hover"
+            >
+              Modifier le suivi
+            </Link>
           </article>
         </div>
 
@@ -189,18 +265,16 @@ export default async function ProspectPage({
               Notes
             </h2>
 
-            <p className="mt-4 leading-7 text-muted">
-              Le prospect souhaite recevoir une présentation des services
-              proposés. Prévoir une relance après l’envoi du premier message
-              afin de vérifier ses besoins et ses disponibilités.
+            <p className="mt-4 whitespace-pre-wrap leading-7 text-muted">
+              {prospect.notes || "Aucune note pour ce prospect."}
             </p>
 
-            <button
-              type="button"
-              className="mt-5 text-sm font-semibold text-primary hover:text-primary-hover"
+            <Link
+              href={`/prospects/${prospect.id}/modifier`}
+              className="mt-5 inline-flex text-sm font-semibold text-primary hover:text-primary-hover"
             >
               Modifier la note
-            </button>
+            </Link>
           </article>
 
           <article className="rounded-2xl border border-border bg-surface p-6 shadow-sm">

@@ -1,7 +1,19 @@
 import Link from "next/link";
+
+import { createProspect } from "@/app/(application)/prospects/actions";
 import ProspectForm from "@/components/prospect-form";
 
-export default function NewProspectPage() {
+type NewProspectPageProps = {
+  searchParams: Promise<{
+    error?: string;
+  }>;
+};
+
+export default async function NewProspectPage({
+  searchParams,
+}: NewProspectPageProps) {
+  const { error } = await searchParams;
+
   return (
     <section className="mx-auto max-w-4xl space-y-6">
       <Link
@@ -26,7 +38,14 @@ export default function NewProspectPage() {
         </p>
       </header>
 
+      {error && (
+        <p className="rounded-xl border border-danger/30 bg-danger/10 px-4 py-3 text-sm font-medium text-danger">
+          {error}
+        </p>
+      )}
+
       <ProspectForm
+        action={createProspect}
         submitLabel="Ajouter le prospect"
         cancelHref="/prospects"
       />

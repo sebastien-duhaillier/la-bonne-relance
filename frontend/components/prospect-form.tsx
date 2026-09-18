@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import type { FormEvent } from "react";
+
 import type { ProspectStatus } from "@/data/prospects";
 
 type ProspectFormValues = {
@@ -19,6 +19,7 @@ type ProspectFormProps = {
   initialValues?: Partial<ProspectFormValues>;
   submitLabel: string;
   cancelHref: string;
+action: (formData: FormData) => void | Promise<void>;
 };
 
 const origins = [
@@ -47,13 +48,10 @@ export default function ProspectForm({
   initialValues,
   submitLabel,
   cancelHref,
+  action,
 }: ProspectFormProps) {
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-  }
-
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+   <form action={action} className="space-y-6">
       <section className="rounded-2xl border border-border bg-surface p-6 shadow-sm">
         <header className="mb-6">
           <h2 className="text-lg font-bold text-foreground">
