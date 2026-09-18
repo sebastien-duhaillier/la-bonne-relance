@@ -140,3 +140,30 @@ export async function updateProspect(
 
   redirect(`/prospects/${id}`);
 }
+export async function deleteProspect(id: string) {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/connexion");
+  }
+
+  const { data, error } = await supabase
+    .from("prospects")
+    .delete()
+    .eq("id", id)
+    .select("id")
+    .single();
+
+  if (error || !data) {
+    throw new Error(
+      error?.message ?? "Le prospect n’a pas pu être supprimé",
+    );
+  }
+
+  revalidatePath("/prospects");
+  redirect("/prospects");
+}

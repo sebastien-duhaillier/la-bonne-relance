@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { deleteProspect } from "@/app/(application)/prospects/actions";
+import DeleteProspectButton from "@/components/delete-prospect-button";
 import type { ProspectStatus } from "@/data/prospects";
 import { createClient } from "@/lib/supabase/server";
 
@@ -93,6 +95,11 @@ export default async function ProspectPage({
 
   const initials = getInitials(prospect.name);
 
+  const deleteProspectWithId = deleteProspect.bind(
+    null,
+    prospect.id,
+  );
+
   const activities = [
     {
       title: "Prospect ajouté",
@@ -104,7 +111,7 @@ export default async function ProspectPage({
   if (prospect.next_follow_up_at) {
     activities.push({
       title: "Relance programmée",
-      description: `Une prochaine relance est prévue pour ce prospect.`,
+      description: "Une prochaine relance est prévue pour ce prospect.",
       date: formatDate(prospect.next_follow_up_at),
     });
   }
@@ -143,12 +150,19 @@ export default async function ProspectPage({
           </div>
         </div>
 
-        <Link
-          href={`/prospects/${prospect.id}/modifier`}
-          className="inline-flex items-center justify-center rounded-xl border border-primary px-5 py-3 font-semibold text-primary hover:bg-primary hover:text-white"
-        >
-          Modifier
-        </Link>
+        <div className="flex flex-col gap-3 sm:flex-row">
+          <Link
+            href={`/prospects/${prospect.id}/modifier`}
+            className="inline-flex items-center justify-center rounded-xl border border-primary px-5 py-3 font-semibold text-primary hover:bg-primary hover:text-white"
+          >
+            Modifier
+          </Link>
+
+          <DeleteProspectButton
+            action={deleteProspectWithId}
+            prospectName={prospect.name}
+          />
+        </div>
       </article>
 
       <div className="grid gap-6 xl:grid-cols-[1fr_1.3fr]">
