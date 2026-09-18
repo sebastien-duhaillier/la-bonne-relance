@@ -1,7 +1,7 @@
 import ProspectsList, {
   type ProspectListItem,
 } from "@/components/prospects-list";
-import type { ProspectStatus } from "@/data/prospects";
+import type { ProspectStatus } from "@/types/prospect";
 import { createClient } from "@/lib/supabase/server";
 
 const prospectStatuses: ProspectStatus[] = [

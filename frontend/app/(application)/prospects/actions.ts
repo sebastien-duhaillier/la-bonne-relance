@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
-import type { ProspectStatus } from "@/data/prospects";
+import type { ProspectStatus } from "@/types/prospect";
 import { createClient } from "@/lib/supabase/server";
 
 const allowedStatuses: ProspectStatus[] = [

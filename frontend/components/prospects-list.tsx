@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 
-import type { ProspectStatus } from "@/data/prospects";
+import type { ProspectStatus } from "@/types/prospect";
 
 const statusStyles: Record<ProspectStatus, string> = {
   Nouveau: "bg-accent-soft text-primary-hover",

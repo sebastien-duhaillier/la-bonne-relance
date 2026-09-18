@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 
 import { deleteProspect } from "@/app/(application)/prospects/actions";
 import DeleteProspectButton from "@/components/delete-prospect-button";
-import type { ProspectStatus } from "@/data/prospects";
+import type { ProspectStatus } from "@/types/prospect";
 import { createClient } from "@/lib/supabase/server";
 
 type ProspectPageProps = {

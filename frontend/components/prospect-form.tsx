@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 
-import type { ProspectStatus } from "@/data/prospects";
+import type { ProspectStatus } from "@/types/prospect";
 
 type ProspectFormValues = {
   name: string;

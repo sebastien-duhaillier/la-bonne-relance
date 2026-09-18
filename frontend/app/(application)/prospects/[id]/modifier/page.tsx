@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 
 import { updateProspect } from "@/app/(application)/prospects/actions";
 import ProspectForm from "@/components/prospect-form";
-import type { ProspectStatus } from "@/data/prospects";
+import type { ProspectStatus } from "@/types/prospect";
 import { createClient } from "@/lib/supabase/server";
 
 const allowedStatuses: ProspectStatus[] = [
