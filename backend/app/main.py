@@ -5,6 +5,8 @@ from app.security import verify_internal_api_key
 from app.services.automation_service import (
     schedule_pending_enrollments,
 )
+from app.services.email_service import send_due_emails
+
 
 app = FastAPI(
     title="La Bonne Relance API",
@@ -35,3 +37,11 @@ def database_health_check() -> dict[str, str]:
 )
 def run_enrollment_scheduler() -> dict[str, int]:
     return schedule_pending_enrollments()
+
+
+@app.post(
+    "/jobs/send-emails",
+    dependencies=[Depends(verify_internal_api_key)],
+)
+def run_email_sender() -> dict[str, int]:
+    return send_due_emails()

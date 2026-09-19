@@ -9,6 +9,10 @@ class Settings(BaseSettings):
     supabase_secret_key: SecretStr
     internal_api_key: SecretStr
 
+    brevo_api_key: SecretStr
+    brevo_sender_email: str
+    brevo_sender_name: str = "La Bonne Relance"
+
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",
